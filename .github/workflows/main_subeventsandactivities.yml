@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - subEventsandActivities
 
 on:
@@ -13,30 +10,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-steps:
-- uses: actions/checkout@v2
-- uses: actions/setup-node@v3
-  with:
-    node-version: '16.x'
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
 
-- name: Install npm packages - server
-  run: |
-    cd mern/server
-    npm install
+    - name: Install npm packages - server
+      run: |
+        cd mern/server
+        npm install
 
-- name: Install npm packages, build then copy files - client
-  run: |
-    cd mern/client
-    npm install
-    npm run build
-    cp -r ./build ../server/public
+    - name: Install npm packages, build then copy files - client
+      run: |
+        cd mern/client
+        npm install
+        npm run build
+        cp -r ./build ../server/public
 
-- name: Upload artifact for deployment job
-  uses: actions/upload-artifact@v2
-  with:
-    name: mern-app
-    path: mern/server
-
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v2
+      with:
+        name: mern-app
+        path: mern/server
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,9 +49,12 @@ steps:
         with:
           name: mern-app
 
+      - name: List files (optional)
+        run: ls -R
+
       - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
+        run: unzip mern-app.zip
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -69,5 +68,4 @@ steps:
         with:
           app-name: 'subEventsandActivities'
           slot-name: 'Production'
-          package: .
-          
+          package: ./mern/server # Adjust the path if necessary
